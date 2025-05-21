@@ -1,0 +1,12 @@
+Binary = 0110 0001 1001 1110
+         -6   -1   -9   -14
+Hexadecimal = 0 1 2 3 4 5 6 7 8 9 A B C D E F
+
+Binary in hex = 619E
+
+-C formatting
+Decimal: 65
+Binary: 0b01000001
+Hexadecimal: 0x41, $41, #41, x41
+
+
