@@ -1,6 +1,6 @@
 #include "chip8.h"
+#include <stdint.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 
 void chip8_init(Chip8 *chip8) {
@@ -17,16 +17,19 @@ void chip8_init(Chip8 *chip8) {
 }
 
 void chip8_load_rom(Chip8 *chip8, const char *filename) {
-  FILE *f = fopen(filename, "rb");
-  if (!f) {
-    printf("could not open ROM:%s", filename);
-    exit(1);
+  FILE *rom;
+  rom = fopen(filename, "rb");
+  if (rom == NULL) {
+    printf("couldnt load rom\n");
   }
-
-  fseek(f, 0, SEEK_END);
-  size_t size = ftell(f);
-  rewind(f);
-
-  fread(&chip8->memory[0x200], size, 1, f);
-  fclose(f);
+  fread(chip8->memory, sizeof(uint8_t), 4096, rom);
+  if (sizeof(chip8->memory) < 4096) {
+    if (ferror(rom)) {
+      printf("Error loading rom\n");
+    }
+    if (feof(rom)) {
+      printf("Error: reached end of file\n");
+    }
+  }
+  printf("rom loaded succesfully...\n");
 }
