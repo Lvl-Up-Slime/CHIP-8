@@ -1,32 +1,52 @@
-#include "chip8.h"
-#include "display.h"
-#include "input.h"
+#include "../include/chip8.h"
+#include "../include/display.h"
+#include "../include/input.h"
+#include "../include/timer.h"
 #include <SDL2/SDL.h>
 #include <stdint.h>
 #include <stdio.h>
 
 int main(int argc, char *argv[]) {
+  //input validation
+  if (argc < 2) {
+    fprintf(stderr, "Usage: %s <ROM file>\n", argv[0]);
+    return 1;
+  }
+
   // declare struct and variables
-  Chip8 *chip8;
-  Display *display;
-  Input *input;
-  const char *filename = argv[1];
+  bool running = true;
+  Chip8 chip8;
+  Display display;
+  Timer timer;
+  const char * filename = argv[1];
 
   // init systems
-  chip8_init(chip8);
-  chip8_load_rom(chip8, filename);
-  display_init(display);
-  input_init(chip8->keypad);
+  chip8_init(&chip8);
+  display_init(&display);
+  input_init(chip8.keypad);
+  timer_init(&timer, &chip8);
+
+  // load rom
+  chip8_load_rom(&chip8, filename);
 
   // main emulator loop
-  while (1) {
+  while (running) {
 
-    // poll request
+    SDL_Event event;// keyboard events
+    while (SDL_PollEvent(&event)) {
+      input_update(event,chip8.keypad);
+    }
 
-    // emualate CPU cycle
+    chip8_emulate_cycles(&chip8); // execute one opcode
 
-    // update display
-    display_update(display, chip8->video);
+    timer_delay(&timer); // delay/sound timer
+
+    if (chip8.draw_flag) { // draws to SDL window
+      display_update(&display, chip8.video);
+      chip8.draw_flag = false;
+    }
+
+    SDL_Delay(16);
   }
 
   return 0;

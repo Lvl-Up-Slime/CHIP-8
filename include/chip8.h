@@ -17,7 +17,7 @@ typedef struct {
   uint8_t keypad[16];     // 16-key input
   uint8_t video[64 * 32]; // monochrome display (1 byte per pixel)
 
-  uint16_t opcode; // currently executing instuction
+  uint16_t opcode; // currently executing instruction
 } Chip8;
 
 void chip8_init(Chip8 *chip8);
