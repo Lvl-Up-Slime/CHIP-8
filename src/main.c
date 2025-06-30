@@ -30,7 +30,7 @@ int main(int argc, char *argv[]) {
   chip8_load_rom(&chip8, filename);
 
   // main emulator loop
-  while (running) {
+  for (int i = 0; i < 39; i++) {
 
     SDL_Event event;// keyboard events
     while (SDL_PollEvent(&event)) {

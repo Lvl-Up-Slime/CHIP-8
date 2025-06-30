@@ -28,13 +28,10 @@ void chip8_emulate_cycles(Chip8 * chip8){
     uint8_t nn  = (chip8->opcode & 0x00FF);
     uint16_t nnn = (chip8->opcode & 0x0FFF);
 
-    // Mask the high 1st nibble to get the opcode index
-    uint16_t instruction = chip8->opcode & 0xF000;
-
     chip8->opcode = chip8->memory[chip8->pc] << 8 | chip8->memory[chip8->pc + 1];
     chip8->pc += 2;
 
-    switch (instruction) {
+    switch (chip8->opcode & 0xF000) {
         case 0x0000:
             // 00E0: Clears the screen
             if (chip8->opcode == 0x00E0){
@@ -99,7 +96,7 @@ void chip8_emulate_cycles(Chip8 * chip8){
         case 0xE000:
         case 0xF000:
         default:
-            printf("error: unknown opcode 0x%04x\n", instruction);
+            printf("error: unknown opcode 0x%04x\n", chip8->opcode & 0xF000);
             break;
     }
 }
