@@ -69,20 +69,22 @@ void chip8_emulate_cycles(Chip8 * chip8){
             // DXYN: Draw a sprite at coordinate VX, VY using N bytes of sprite data
             // starting at the address stored in the index register if any set pixels
             // are unset set VF to 1. Otherwise, set VF to 0
-            chip8->V[0xF] = 0;
             uint8_t x = chip8->V[(chip8->opcode & 0x0F00) >> 8];
             uint8_t y = chip8->V[(chip8->opcode & 0x00F0) >> 4];
             uint8_t height = chip8->opcode & 0x000F;
 
-            for (int i = 0; i < height; i++) {
-                u_int16_t sprite = chip8->memory[chip8->I + i];
-                for (int j = 0; j < 8; j++) {
+            chip8->V[0xF] = 0;
+
+            for (int row = 0; row < height; row++) {
+                uint8_t sprite = chip8->memory[chip8->I + row];
+                for (int col = 0; col < 8; col++) {
                     //mask the pixel and get its values by shifting
-                    uint16_t pixel = (sprite & 0x80 >> j) >> (7 - j);
+                    uint8_t pixel = (sprite & 0x80 >> col) >> (7 - col);
                     if (pixel == 1) {
-                        int x_cord = (x + j) % chip8->screen_width;
-                        int y_cord = (y + i) % chip8->screen_height;
-                        int index = x_cord + (y_cord * chip8->screen_width);
+                        int x_cord = (x + col) % SCREEN_WIDTH;
+                        int y_cord = (y + row) % SCREEN_HEIGHT;
+                        // formula for 1D array : y * 64 + x
+                        int index = (y_cord * SCREEN_WIDTH) + x_cord;
 
                         if (chip8->video[index] == 1) {
                             chip8->V[0xF] = 1;

@@ -5,9 +5,12 @@
 #include <stdbool.h>
 #include <SDL2/SDL.h>
 
+#define SCREEN_WIDTH 64
+#define SCREEN_HEIGHT 32
+
 typedef struct{
-  u_int8_t screen_width;
-  u_int8_t screen_height;
+  uint8_t screen_width;
+  uint8_t screen_height;
 
   uint8_t memory[4096]; // 4k memory
   uint8_t V[16];        // 16 registers: V0 - VF
@@ -20,7 +23,7 @@ typedef struct{
   uint8_t sound_timer; // Sound timer
 
   uint8_t keypad[16];     // 16-key input
-  uint8_t video[64 * 32];// monochrome display (1 byte per pixel)
+  uint8_t video[SCREEN_WIDTH * SCREEN_HEIGHT];// monochrome display (1 byte per pixel)
 
   uint16_t opcode; // currently executing instruction
 

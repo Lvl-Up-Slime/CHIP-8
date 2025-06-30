@@ -5,7 +5,7 @@
 #include <stdint.h>
 
 void display_init(Display * display) {
-  display->window_scale = 10;
+  display->window_scale = 20;
 
   if (SDL_Init(SDL_INIT_VIDEO) != 0) {
     printf("SDL_Init Error: %s\n", SDL_GetError());
@@ -29,20 +29,19 @@ void display_update(Display * display, Chip8 * chip8) {
   SDL_RenderClear(display->renderer);
 
   // iterates through a width x height grid
-  for (int y = 0; y < 32; y++) {
-    for (int x = 0; x < 64; x++) {
-      int index = y * 64 + x;
-      uint8_t pixel = chip8->video[index];
+  for (int row = 0; row < 32; row++) {
+    for (int col = 0; col < 64; col++) {
+      int index = row * 64 + col;
       // if pixel is white
       if (chip8->video[index] == 1) {
         SDL_SetRenderDrawColor(display->renderer, 255, 255, 255, 255);
-        // else pixel is black
+      // else pixel is black
       } else {
         SDL_SetRenderDrawColor(display->renderer, 0, 0, 0, 255);
       }
       // scales window to become larger
-      SDL_Rect pixel_rect = {x * display->window_scale,
-                             y * display->window_scale, display->window_scale,
+      SDL_Rect pixel_rect = {col * display->window_scale,
+                             row * display->window_scale, display->window_scale,
                              display->window_scale};
       SDL_RenderFillRect(display->renderer, &pixel_rect);
     }
