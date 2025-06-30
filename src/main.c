@@ -1,7 +1,7 @@
-#include "../include/chip8.h"
-#include "../include/display.h"
-#include "../include/input.h"
-#include "../include/timer.h"
+#include "chip8.h"
+#include "display.h"
+#include "input.h"
+#include "timer.h"
 #include <SDL2/SDL.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -23,7 +23,7 @@ int main(int argc, char *argv[]) {
   // init systems
   chip8_init(&chip8);
   display_init(&display);
-  input_init(chip8.keypad);
+  input_init(&chip8);
   timer_init(&timer, &chip8);
 
   // load rom
@@ -34,20 +34,19 @@ int main(int argc, char *argv[]) {
 
     SDL_Event event;// keyboard events
     while (SDL_PollEvent(&event)) {
-      input_update(event,chip8.keypad);
+      input_update(event,&chip8);
     }
-
+    
     chip8_emulate_cycles(&chip8); // execute one opcode
-
+    
     timer_delay(&timer); // delay/sound timer
 
     if (chip8.draw_flag) { // draws to SDL window
-      display_update(&display, chip8.video);
+      display_update(&display, &chip8);
       chip8.draw_flag = false;
     }
 
     SDL_Delay(16);
   }
-
   return 0;
 }

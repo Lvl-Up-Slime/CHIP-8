@@ -9,4 +9,23 @@ Decimal: 65
 Binary: 0b01000001
 Hexadecimal: 0x41, $41, #41, x41
 
+- Opcode construction
+Hex:    8   1   2   4
+Nibbles:|   |   |   |
+        |   |   |   └─ 4 = operation type (ADD)
+        |   |   └────── y = 2 → this means Vy = V2
+        |   └────────── x = 1 → this means Vx = V1
+        └────────────── main opcode = 8
+
+- Boolean algebra
+| Operation   | Boolean Name  | Symbol | Meaning                            |
+| ----------- | ------------- | ------ | ---------------------------------- |
+| AND         | Conjunction   | `&`    | 1 if **both** bits are 1           |
+| OR          | Disjunction   | `\|`   | 1 if **either** bit is 1           |
+| XOR         | Exclusive Or  | `^`    | 1 if **only one** bit is 1         |
+| NOT         | Negation      | `~`    | Flips bits: 0 → 1, 1 → 0           |
+| Shift Left  | Multiply by 2 | `<<`   | Moves bits left (adds zero at end) |
+| Shift Right | Divide by 2   | `>>`   | Moves bits right (drops low bit)   |
+
+
 

@@ -4,7 +4,7 @@
 #include <SDL2/SDL_render.h>
 #include <stdint.h>
 
-void display_init(Display *display) {
+void display_init(Display * display) {
   display->window_scale = 10;
 
   if (SDL_Init(SDL_INIT_VIDEO) != 0) {
@@ -16,21 +16,25 @@ void display_init(Display *display) {
       "chip8", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
       64 * display->window_scale, 32 * display->window_scale, SDL_WINDOW_SHOWN);
 
-  display->renderer =
-      SDL_CreateRenderer(display->window, -1, SDL_RENDERER_ACCELERATED);
+  display->renderer = SDL_CreateRenderer(display->window, -1, SDL_RENDERER_ACCELERATED);
+
+    SDL_SetRenderDrawColor(display->renderer, 0, 0, 0, 255);
+    SDL_RenderClear(display->renderer);
+    SDL_RenderPresent(display->renderer);
+
 }
 
-void display_update(Display *display, const uint8_t *video_buffer) {
+void display_update(Display * display, Chip8 * chip8) {
   SDL_SetRenderDrawColor(display->renderer, 0, 0, 0, 255);
   SDL_RenderClear(display->renderer);
 
-  // iterates trough a width x height grid
+  // iterates through a width x height grid
   for (int y = 0; y < 32; y++) {
     for (int x = 0; x < 64; x++) {
       int index = y * 64 + x;
-      uint8_t pixel = video_buffer[index];
+      uint8_t pixel = chip8->video[index];
       // if pixel is white
-      if (video_buffer[index] == 1) {
+      if (chip8->video[index] == 1) {
         SDL_SetRenderDrawColor(display->renderer, 255, 255, 255, 255);
         // else pixel is black
       } else {
