@@ -9,10 +9,7 @@
 #define SCREEN_HEIGHT 32
 
 typedef struct{
-  uint8_t screen_width;
-  uint8_t screen_height;
-
-  uint8_t memory[4096]; // 4k memory
+  uint8_t memory[4096]; // 4k memory: program starts at [0x200]
   uint8_t V[16];        // 16 registers: V0 - VF
   uint16_t I;           // index registers
   uint16_t pc;          // Program counter

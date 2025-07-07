@@ -37,14 +37,15 @@ int main(int argc, char *argv[]) {
     }
     
     chip8_emulate_cycles(&chip8); // execute one opcode
-    
-    timer_delay(&timer); // delay/sound timer
+      printf("PC: %03X | Opcode: %04X | V0: %02X | V1: %02X | I: %04X\n", chip8.pc, chip8.opcode, chip8.V[0], chip8.V[1], chip8.I);
 
+    timer_delay(&timer); // delay/sound timer
+    
     if (chip8.draw_flag) { // draws to SDL window
       display_update(&display, &chip8);
       chip8.draw_flag = false;
     }
-
+    
     SDL_Delay(16);
   }
   return 0;

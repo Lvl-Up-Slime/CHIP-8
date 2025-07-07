@@ -4,8 +4,6 @@
 #include <string.h>
 
 void chip8_init(Chip8 * chip8) {
-    chip8->screen_width = 64;
-    chip8->screen_height = 32;
     chip8->pc = 0x200;
     chip8->I = 0;
     chip8->sp = 0;
@@ -22,11 +20,6 @@ void chip8_init(Chip8 * chip8) {
 }
 
 void chip8_emulate_cycles(Chip8 * chip8){
-    uint8_t x   = (chip8->opcode & 0x0F00) >> 8;
-    uint8_t y   = (chip8->opcode & 0x00F0) >> 4;
-    uint8_t n   = (chip8->opcode & 0x000F);
-    uint8_t nn  = (chip8->opcode & 0x00FF);
-    uint16_t nnn = (chip8->opcode & 0x0FFF);
 
     chip8->opcode = chip8->memory[chip8->pc] << 8 | chip8->memory[chip8->pc + 1];
     chip8->pc += 2;
@@ -38,7 +31,8 @@ void chip8_emulate_cycles(Chip8 * chip8){
                 memset(chip8->video, 0, sizeof(chip8->video));
                 chip8->draw_flag = true;
             }
-            // 00EE: Return from a subroutine. Set the program counter to the address at the top of the stack
+            // 00EE: Return from a subroutine.
+            // Set the program counter to the address at the top of the stack
             else if (chip8->opcode == 0x00EE) {
                chip8->sp--;
                chip8->pc = chip8->stack[chip8->sp];
@@ -57,6 +51,8 @@ void chip8_emulate_cycles(Chip8 * chip8){
             chip8->V[chip8->opcode & 0x0F00 >> 8] = chip8->opcode & 0x00FF;
             break;
         case 0x7000:
+            chip8->V[(chip8->opcode & 0x0F00) >> 8] += chip8->opcode & 0x00FF;
+            break;
         case 0x8000:
         case 0x9000:
         case 0xA000:
@@ -69,17 +65,18 @@ void chip8_emulate_cycles(Chip8 * chip8){
             // DXYN: Draw a sprite at coordinate VX, VY using N bytes of sprite data
             // starting at the address stored in the index register if any set pixels
             // are unset set VF to 1. Otherwise, set VF to 0
-            uint8_t x = chip8->V[(chip8->opcode & 0x0F00) >> 8];
-            uint8_t y = chip8->V[(chip8->opcode & 0x00F0) >> 4];
-            uint8_t height = chip8->opcode & 0x000F;
+            int x = chip8->V[(chip8->opcode & 0x0F00) >> 8];
+            int y = chip8->V[(chip8->opcode & 0x00F0) >> 4];
 
+            // Debug for VX and VY
+            // printf("VX: %d, VY: %d\n", x, y);
             chip8->V[0xF] = 0;
 
-            for (int row = 0; row < height; row++) {
-                uint8_t sprite = chip8->memory[chip8->I + row];
+            for (int row = 0; row < (chip8->opcode & 0x000F); row++) {
+                int sprite = chip8->memory[chip8->I + row];
                 for (int col = 0; col < 8; col++) {
                     //mask the pixel and get its values by shifting
-                    uint8_t pixel = (sprite & 0x80 >> col) >> (7 - col);
+                    int pixel = (sprite & (0x80 >> col)) >> (7 - col);
                     if (pixel == 1) {
                         int x_cord = (x + col) % SCREEN_WIDTH;
                         int y_cord = (y + row) % SCREEN_HEIGHT;
@@ -90,6 +87,7 @@ void chip8_emulate_cycles(Chip8 * chip8){
                             chip8->V[0xF] = 1;
                         }
                         chip8->video[index] ^= 1;
+                        // printf("Drawing at (x=%d, y=%d)\n", x_cord, y_cord);
                     }
                 }
             }
