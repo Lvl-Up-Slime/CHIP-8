@@ -40,9 +40,12 @@ void display_update(Display * display, Chip8 * chip8) {
         continue;
       }
       // scales window to become larger
-      SDL_Rect pixel_rect = {col * display->window_scale,
-                             row * display->window_scale, display->window_scale,
-                             display->window_scale};
+      SDL_Rect pixel_rect = {
+          col * display->window_scale,
+          row * display->window_scale,
+          display->window_scale,
+          display->window_scale
+      };
       SDL_RenderFillRect(display->renderer, &pixel_rect);
     }
   }
