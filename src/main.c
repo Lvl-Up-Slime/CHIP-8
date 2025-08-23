@@ -14,7 +14,7 @@ Chip8 chip8;
 Display display;
 Timer timer;
 void handle_sigint(int sig) { running = false; }
-
+ 
 int main(int argc, char *argv[]) {
   signal(SIGINT, handle_sigint); // enables Ctrl+c shutdown
    

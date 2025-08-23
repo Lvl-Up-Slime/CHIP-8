@@ -21,17 +21,17 @@ void chip8_init(Chip8 * chip8) {
 }
 
 void chip8_emulate_cycles(Chip8 * chip8) {
-  
-    uint8_t  N   = chip8->opcode & 0x000F;
-    uint8_t  NN  = chip8->opcode & 0x00FF;
-    uint16_t NNN = chip8->opcode & 0x0FFF;
-    uint8_t  X   = (chip8->opcode & 0x0F00) >> 8;
-    uint8_t  Y   = (chip8->opcode & 0x00F0) >> 4;
-    
+   
     chip8->opcode = chip8->memory[chip8->pc] << 8 | chip8->memory[chip8->pc + 1]; 
     chip8->pc += 2;
     int x = 0;
     int y = 0;
+
+    uint8_t  N   = (chip8->opcode & 0x000F);
+    uint8_t  NN  = (chip8->opcode & 0x00FF);
+    uint16_t NNN = (chip8->opcode & 0x0FFF);
+    uint8_t  X   = (chip8->opcode & 0x0F00) >> 8;
+    uint8_t  Y   = (chip8->opcode & 0x00F0) >> 4; 
 
     switch (chip8->opcode & 0xF000) {
         case 0x0000:
@@ -57,10 +57,10 @@ void chip8_emulate_cycles(Chip8 * chip8) {
         // case 0x5000:
         case 0x6000:
             // 6XNN: Set register X to NN
-            chip8->V[NN >> 8] = NN; 
+          chip8->V[X] = NN; 
             break;
         case 0x7000:
-            chip8->V[NN >> 8] += NN; 
+          chip8->V[X] += NN; 
             break;
         // case 0x8000:
         // case 0x9000:
@@ -82,6 +82,8 @@ void chip8_emulate_cycles(Chip8 * chip8) {
                 int sprite = chip8->memory[chip8->I + row];
                 for (int col = 0; col < 8; col++) {
                     //mask the pixel and get its values by shifting
+
+                    //todo change pixel declaration to: int pixel = (sprite >> (7 - col)) & 1;
                     int pixel = (sprite & (0x80 >> col)) >> (7 - col);
                     if (pixel == 1) {
                         int x_cord = (x + col) % SCREEN_WIDTH;
