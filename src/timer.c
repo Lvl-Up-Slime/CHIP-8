@@ -1,8 +1,8 @@
 #include <stdint.h>
 #include "chip8.h"
 #include "timer.h"
+#include <SDL3/SDL_timer.h>
 
-#include <SDL2/SDL_timer.h>
 void timer_init(Timer * timer, Chip8 * chip8) {
     timer->prev_timer = SDL_GetTicks(); //init timer
     timer->delay_timer = chip8->delay_timer;

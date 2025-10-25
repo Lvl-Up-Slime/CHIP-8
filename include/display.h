@@ -2,9 +2,9 @@
 #define DISPLAY_H
 
 #include "chip8.h"
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_render.h>
-#include <SDL2/SDL_video.h>
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_render.h>
+#include <SDL3/SDL_video.h>
 #include <stdint.h>
 
 typedef struct {
