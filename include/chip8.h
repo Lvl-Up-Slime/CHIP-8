@@ -1,7 +1,6 @@
 #ifndef CHIP8_H
 #define CHIP8_H
 
-#include <SDL3/SDL.h>
 #include <bits/stdint-uintn.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -21,11 +20,12 @@ typedef struct {
     uint8_t sound_timer;  // Sound timer
 
     uint8_t keypad[16];  // 16-key input
-    uint8_t video[SCREEN_WIDTH * SCREEN_HEIGHT];  // monochrome display (1 byte per pixel)
+    uint8_t video[SCREEN_WIDTH *
+                  SCREEN_HEIGHT];  // monochrome display (1 byte per pixel)
 
     uint16_t opcode;  // currently executing instruction
 
-    bool shift_quirk; 
+    bool vy_shift_quirk;
     bool draw_flag;
 } Chip8;
 

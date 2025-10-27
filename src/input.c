@@ -1,5 +1,4 @@
-#include <SDL3/SDL_events.h>
-#include <SDL3/SDL_keycode.h>
+#include <SDL3/SDL.h>
 #include <stdint.h>
 #include "chip8.h"
 

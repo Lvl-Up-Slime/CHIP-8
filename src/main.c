@@ -15,7 +15,7 @@ Display display;
 Timer timer;
 void handle_sigint(int sig) { running = false; }
 
-// "!cd ../build/; make run"
+// "!cd ../; make run"
 int main(int argc, char *argv[]) {
     signal(SIGINT, handle_sigint);  // enables Ctrl+c shutdown
 
@@ -31,6 +31,9 @@ int main(int argc, char *argv[]) {
     display_init(&display);
     input_init(&chip8);
     timer_init(&timer, &chip8);
+    
+    //need to implement shift quirk validation: vy_shift_quirk
+
 
     chip8_load_rom(&chip8, filename);  // load rom
 

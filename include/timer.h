@@ -1,6 +1,7 @@
 #ifndef TIMER_H
 #define TIMER_H
 #include <stdint.h>
+
 typedef struct {
     uint32_t prev_timer;
     uint32_t curr_timer;

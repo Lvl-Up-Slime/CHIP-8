@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "complex.h"
 
 void chip8_init(Chip8* chip8) {
     chip8->pc = 0x200;
@@ -15,6 +16,7 @@ void chip8_init(Chip8* chip8) {
     chip8->opcode = 0;
     chip8->delay_timer = 0;
     chip8->sound_timer = 0;
+    chip8->vy_shift_quirk = 0;
     chip8->draw_flag = false;
 
     memset(chip8->memory, 0, sizeof(chip8->memory));
@@ -89,20 +91,66 @@ void chip8_emulate_cycles(Chip8* chip8) {
                 case 0x0: 
                     //return register X = Y 
                     chip8->V[X] = chip8->V[Y];
+                    break;
                 case 0x1:
                     //return register X or Y 
-                    chip8->V[X] = chip8->V[X] | chip8->V[Y];
+                    chip8->V[X] |= chip8->V[Y];
+                    break;
                 case 0x2:
                     //return register X and Y
-                    chip8->V[X] = chip8->V[X] & chip8->V[Y];
+                    chip8->V[X] &= chip8->V[Y];
+                    break;
                 case 0x3:
                     //return register X xor Y
-                    chip8->V[X] = chip8->V[X] ^ chip8->V[Y];
+                    chip8->V[X] ^= chip8->V[Y];
+                    break;
                 case 0x4:
-                case 0x5:
+                    //return register X + Y
+                    chip8->V[X] += chip8->V[Y];  
+                    break;
+                case 0x5: {
+                    // mask the value for negative
+                    uint8_t Vx = chip8->V[X];
+                    uint8_t Vy = chip8->V[Y];
+                    // if there is a borrow set to 0 else set to 1
+                    chip8->V[N] = (Vx >= Vy);
+                    // return register X - Y
+                    chip8->V[X] = Vx - Vy;
+                    break;
+                }
                 case 0x6:
-                case 0x7:
+                    // store the last bit of register X
+                    uint8_t last_bit = (chip8->V[X] & 1);
+                    // check for the VY shifting quirk set in chip8 typedef
+                    // if shift quirk is true shift VY >> 1 and store to VX else shift VX >> 1  
+                    if (chip8->vy_shift_quirk) {
+                        chip8->V[X] = (chip8->V[X] >> 1);
+                    } else {
+                        chip8->V[X] = (chip8->V[Y] >> 1); 
+                    }                        
+                    chip8->V[N] = last_bit;
+                    break;
+                case 0x7: {
+                    // mask the value for negative
+                    uint8_t Vx = chip8->V[X];
+                    uint8_t Vy = chip8->V[Y];
+                    // if there is a borrow set to 0 else set to 1
+                    chip8->V[N] = (Vx >= Vy);
+                    // return register Y - X
+                    chip8->V[X] = Vy - Vx;
+                    break;
+                }
                 case 0xE:
+                    //Set VN to the most significant bit of VX 
+                    uint8_t first_bit = (chip8->V[X] & 0x80) >> 7;
+                    //shift value of VX
+                    if (chip8->vy_shift_quirk) {
+                        chip8->V[X] = (chip8->V[X] << 1);
+                    } else {
+                        chip8->V[X] = (chip8->V[Y] << 1);
+                    }
+                    chip8->V[N] = first_bit;
+                    break;
                 default:
                     printf("default");
             }
@@ -200,11 +248,3 @@ void chip8_load_rom(Chip8* chip8, const char* filename) {
     fclose(rom);
     printf("rom loaded successfully...\n");
 }
-
-int getnums(int nums) {
-    for (int i = 0; i < 10; i++) {
-        
-    }
-
-
-}    
