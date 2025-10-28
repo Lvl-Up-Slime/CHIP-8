@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "complex.h"
+#include "sys/types.h"
 
 void chip8_init(Chip8* chip8) {
     chip8->pc = 0x200;
@@ -36,6 +37,7 @@ void chip8_emulate_cycles(Chip8* chip8) {
     uint8_t N = (chip8->opcode & 0x000F);
     uint8_t NN = (chip8->opcode & 0x00FF);
     uint16_t NNN = (chip8->opcode & 0x0FFF);
+    uint16_t NNNN = (chip8->opcode & 0xFFFF);
     uint8_t X = (chip8->opcode & 0x0F00) >> 8;
     uint8_t Y = (chip8->opcode & 0x00F0) >> 4;
 
@@ -165,8 +167,8 @@ void chip8_emulate_cycles(Chip8* chip8) {
             chip8->I = NNN;
             break;
         case 0xB000:
-            // BNNN: Jump to adress NNN + register N
-            chip8->pc = NNN + chip8->V[N];
+            // BNNN: Jump to adress NNN + register 0
+            chip8->pc = NNN + chip8->V[0];
         case 0xC000:
             // CXNN: Set register X to random number[0-255] AND NN
             chip8->V[X] = (rand() % 256) & NN;
@@ -219,7 +221,55 @@ void chip8_emulate_cycles(Chip8* chip8) {
             }
             break;
         case 0xF000:
-            switch (NN) {}
+            switch (NN) {
+                // set register to the valiue of delay_timer
+            case 0x07:
+                chip8->V[X] = chip8->delay_timer;
+                break;
+                // wait for key press and store value in register X
+            case 0x0A:
+                bool key_pressed = false;
+                for (int i = 0; i < 16; i++) {
+                    if (chip8->keypad[i] == true)
+                        chip8->V[X] = i; 
+                    key_pressed = true;
+                }
+                if (!key_pressed) {
+                    chip8->pc -= 2;
+                }                    
+                break;
+                // set delay timer to value of register X
+            case 0x15:
+                chip8->delay_timer = chip8->V[X];
+                break;
+                // set sound timer to value of register X
+            case 0x18:
+                chip8->sound_timer = chip8->V[X];
+                break;
+                // add value of register X to Index Register 
+            case 0x1E:
+                chip8->I =  chip8->I + ((u_int16_t) chip8->V[X]);
+                break;
+            case 0x29:
+                chip8->I = chip8->V[X] * 5;
+                break;
+            case 0x33:
+                chip8->memory[chip8->I] = chip8->V[X] / 100;
+                chip8->memory[chip8->I + 1] = (chip8->V[X] / 10) % 10;
+                chip8->memory[chip8->I + 2] = chip8->V[X] % 10;
+                break;
+            case 0x55:
+                for (int i = 0; i < chip8->V[X + 1]; i++) {
+                    chip8->memory[chip8 I + i] = chip8->V[i];  
+                }                    
+                chip8->I = chip8->I + ((uint16_t) chip8->V[X] + 1);
+                break;
+            case 0x65:
+                for (int i = 0; i < chip8->V[X + 1]; i++) {
+                    chip8->V[i] = chip8->memory[chip8->I + i];  
+                }
+                chip8->I = chip8->I + ((uint16_t) chip8->V[X] + 1);
+            }
         default:
             printf("error: unknown opcode 0x%04x\n", chip8->opcode & 0xF000);
             break;
@@ -248,3 +298,7 @@ void chip8_load_rom(Chip8* chip8, const char* filename) {
     fclose(rom);
     printf("rom loaded successfully...\n");
 }
+
+void chip8_opcode_debug(uint8_t *opcode) {
+    printf("place holder");
+}    
