@@ -12,7 +12,7 @@
 
 void chip8_init(Chip8* chip8) {
     chip8->pc = 0x200;
-    chip8->I = 0;
+    chip8->index_reg = 0;
     chip8->sp = 0;
     chip8->opcode = 0;
     chip8->delay_timer = 0;
@@ -88,27 +88,27 @@ void chip8_emulate_cycles(Chip8* chip8) {
             chip8->V[X] += NN;
             break;
         case 0x8000:
-            //8XY0 - 8XY7 and 8XYE runs arithmetic instruction
+            // 8XY0 - 8XY7 and 8XYE runs arithmetic instruction
             switch (N) {
-                case 0x0: 
-                    //return register X = Y 
+                case 0x0:
+                    // return register X = Y
                     chip8->V[X] = chip8->V[Y];
                     break;
                 case 0x1:
-                    //return register X or Y 
+                    // return register X or Y
                     chip8->V[X] |= chip8->V[Y];
                     break;
                 case 0x2:
-                    //return register X and Y
+                    // return register X and Y
                     chip8->V[X] &= chip8->V[Y];
                     break;
                 case 0x3:
-                    //return register X xor Y
+                    // return register X xor Y
                     chip8->V[X] ^= chip8->V[Y];
                     break;
                 case 0x4:
-                    //return register X + Y
-                    chip8->V[X] += chip8->V[Y];  
+                    // return register X + Y
+                    chip8->V[X] += chip8->V[Y];
                     break;
                 case 0x5: {
                     // mask the value for negative
@@ -124,12 +124,13 @@ void chip8_emulate_cycles(Chip8* chip8) {
                     // store the last bit of register X
                     uint8_t last_bit = (chip8->V[X] & 1);
                     // check for the VY shifting quirk set in chip8 typedef
-                    // if shift quirk is true shift VY >> 1 and store to VX else shift VX >> 1  
+                    // if shift quirk is true shift VY >> 1 and store to VX else
+                    // shift VX >> 1
                     if (chip8->vy_shift_quirk) {
                         chip8->V[X] = (chip8->V[X] >> 1);
                     } else {
-                        chip8->V[X] = (chip8->V[Y] >> 1); 
-                    }                        
+                        chip8->V[X] = (chip8->V[Y] >> 1);
+                    }
                     chip8->V[N] = last_bit;
                     break;
                 case 0x7: {
@@ -143,9 +144,9 @@ void chip8_emulate_cycles(Chip8* chip8) {
                     break;
                 }
                 case 0xE:
-                    //Set VN to the most significant bit of VX 
+                    // Set VN to the most significant bit of VX
                     uint8_t first_bit = (chip8->V[X] & 0x80) >> 7;
-                    //shift value of VX
+                    // shift value of VX
                     if (chip8->vy_shift_quirk) {
                         chip8->V[X] = (chip8->V[X] << 1);
                     } else {
@@ -164,7 +165,7 @@ void chip8_emulate_cycles(Chip8* chip8) {
             }
         case 0xA000:
             // ANNN: Set the index register to the address NNN
-            chip8->I = NNN;
+            chip8->index_reg = NNN;
             break;
         case 0xB000:
             // BNNN: Jump to adress NNN + register 0
@@ -182,7 +183,7 @@ void chip8_emulate_cycles(Chip8* chip8) {
             chip8->V[0xF] = 0;
 
             for (int row = 0; row < N; row++) {
-                int sprite = chip8->memory[chip8->I + row];
+                int sprite = chip8->memory[chip8->index_reg + row];
                 for (int col = 0; col < 8; col++) {
                     // mask the pixel and get its values by shifting
 
@@ -222,53 +223,52 @@ void chip8_emulate_cycles(Chip8* chip8) {
             break;
         case 0xF000:
             switch (NN) {
-                // set register to the valiue of delay_timer
-            case 0x07:
-                chip8->V[X] = chip8->delay_timer;
-                break;
-                // wait for key press and store value in register X
-            case 0x0A:
-                bool key_pressed = false;
-                for (int i = 0; i < 16; i++) {
-                    if (chip8->keypad[i] == true)
-                        chip8->V[X] = i; 
-                    key_pressed = true;
-                }
-                if (!key_pressed) {
-                    chip8->pc -= 2;
-                }                    
-                break;
-                // set delay timer to value of register X
-            case 0x15:
-                chip8->delay_timer = chip8->V[X];
-                break;
-                // set sound timer to value of register X
-            case 0x18:
-                chip8->sound_timer = chip8->V[X];
-                break;
-                // add value of register X to Index Register 
-            case 0x1E:
-                chip8->I =  chip8->I + ((u_int16_t) chip8->V[X]);
-                break;
-            case 0x29:
-                chip8->I = chip8->V[X] * 5;
-                break;
-            case 0x33:
-                chip8->memory[chip8->I] = chip8->V[X] / 100;
-                chip8->memory[chip8->I + 1] = (chip8->V[X] / 10) % 10;
-                chip8->memory[chip8->I + 2] = chip8->V[X] % 10;
-                break;
-            case 0x55:
-                for (int i = 0; i < chip8->V[X + 1]; i++) {
-                    chip8->memory[chip8 I + i] = chip8->V[i];  
-                }                    
-                chip8->I = chip8->I + ((uint16_t) chip8->V[X] + 1);
-                break;
-            case 0x65:
-                for (int i = 0; i < chip8->V[X + 1]; i++) {
-                    chip8->V[i] = chip8->memory[chip8->I + i];  
-                }
-                chip8->I = chip8->I + ((uint16_t) chip8->V[X] + 1);
+                    // set register to the valiue of delay_timer
+                case 0x07:
+                    chip8->V[X] = chip8->delay_timer;
+                    break;
+                    // wait for key press and store value in register X
+                case 0x0A:
+                    bool key_pressed = false;
+                    for (int i = 0; i < 16; i++) {
+                        if (chip8->keypad[i] == true) chip8->V[X] = i;
+                        key_pressed = true;
+                    }
+                    if (!key_pressed) {
+                        chip8->pc -= 2;
+                    }
+                    break;
+                    // set delay timer to value of register X
+                case 0x15:
+                    chip8->delay_timer = chip8->V[X];
+                    break;
+                    // set sound timer to value of register X
+                case 0x18:
+                    chip8->sound_timer = chip8->V[X];
+                    break;
+                    // add value of register X to Index Register
+                case 0x1E:
+                    chip8->index_reg = chip8->index_reg + ((u_int16_t)chip8->V[X]);
+                    break;
+                case 0x29:
+                    chip8->index_reg = chip8->V[X] * 5;
+                    break;
+                case 0x33:
+                    chip8->memory[chip8->index_reg] = chip8->V[X] / 100;
+                    chip8->memory[chip8->index_reg + 1] = (chip8->V[X] / 10) % 10;
+                    chip8->memory[chip8->index_reg + 2] = chip8->V[X] % 10;
+                    break;
+                case 0x55:
+                    for (int i = 0; i < chip8->V[X + 1]; i++) {
+                        chip8->memory[chip8->index_reg + i] = chip8->V[i];
+                    }
+                    chip8->index_reg = chip8->index_reg + ((uint16_t)chip8->V[X] + 1);
+                    break;
+                case 0x65:
+                    for (int i = 0; i < chip8->V[X + 1]; i++) {
+                        chip8->V[i] = chip8->memory[chip8->index_reg + i];
+                    }
+                    chip8->index_reg = chip8->index_reg + ((uint16_t)chip8->V[X] + 1);
             }
         default:
             printf("error: unknown opcode 0x%04x\n", chip8->opcode & 0xF000);
@@ -299,6 +299,4 @@ void chip8_load_rom(Chip8* chip8, const char* filename) {
     printf("rom loaded successfully...\n");
 }
 
-void chip8_opcode_debug(uint8_t *opcode) {
-    printf("place holder");
-}    
+void chip8_opcode_debug(uint8_t* opcode) { printf("place holder"); }
