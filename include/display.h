@@ -3,7 +3,6 @@
 
 #include "chip8.h"
 #include <SDL3/SDL.h>
-#include <stdint.h>
 
 typedef struct {
   SDL_Window * window;

@@ -1,5 +1,4 @@
 #include "chip8.h"
-
 #include <bits/stdint-intn.h>
 #include <bits/stdint-uintn.h>
 #include <stdbool.h>
@@ -7,7 +6,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "complex.h"
 #include "sys/types.h"
 
 void chip8_init(Chip8* chip8) {
@@ -37,7 +35,6 @@ void chip8_emulate_cycles(Chip8* chip8) {
     uint8_t N = (chip8->opcode & 0x000F);
     uint8_t NN = (chip8->opcode & 0x00FF);
     uint16_t NNN = (chip8->opcode & 0x0FFF);
-    uint16_t NNNN = (chip8->opcode & 0xFFFF);
     uint8_t X = (chip8->opcode & 0x0F00) >> 8;
     uint8_t Y = (chip8->opcode & 0x00F0) >> 4;
 

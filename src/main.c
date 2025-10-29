@@ -1,7 +1,6 @@
 #include <SDL3/SDL.h>
 #include <signal.h>
 #include <stdbool.h>
-#include <stdint.h>
 #include <stdio.h>
 #include "chip8.h"
 #include "display.h"
