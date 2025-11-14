@@ -1,7 +1,8 @@
 #include <SDL3/SDL.h>
-#include <signal.h>
 #include <stdbool.h>
 #include <stdio.h>
+
+#include "SDL3/SDL_init.h"
 #include "chip8.h"
 #include "display.h"
 #include "input.h"
@@ -12,27 +13,22 @@ volatile bool running = true;
 Chip8 chip8;
 Display display;
 Timer timer;
-void handle_sigint(int sig) { running = false; }
 
-// "!cd ../; make run"
-int main(int argc, char *argv[]) {
-    signal(SIGINT, handle_sigint);  // enables Ctrl+c shutdown
-
+int main(int argc, char* argv[]) {
     // input validation
     if (argc < 2) {
         fprintf(stderr, "Usage: %s <ROM file>\n", argv[0]);
         return 1;
     }
-    const char *filename = argv[1];
+    const char* filename = argv[1];
 
     // init systems
     chip8_init(&chip8);
     display_init(&display);
     input_init(&chip8);
     timer_init(&timer, &chip8);
-    
-    //need to implement shift quirk validation: vy_shift_quirk
 
+    // need to implement shift quirk validation: vy_shift_quirk
 
     chip8_load_rom(&chip8, filename);  // load rom
 
@@ -41,7 +37,7 @@ int main(int argc, char *argv[]) {
         SDL_Event event;  // keyboard events
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_EVENT_QUIT) {
-                running = false;
+                SDL_Quit();
             }
             input_update(event, &chip8);
         }
@@ -58,4 +54,3 @@ int main(int argc, char *argv[]) {
     }
     return 0;
 }
-

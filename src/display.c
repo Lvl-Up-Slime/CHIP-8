@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void display_init(Display *display) {
+void display_init(Display* display) {
     display->window_scale = 10;
 
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
@@ -31,7 +31,7 @@ void display_init(Display *display) {
     SDL_RenderPresent(display->renderer);
 }
 
-void display_update(Display *display, Chip8 *chip8) {
+void display_update(Display* display, Chip8* chip8) {
     SDL_SetRenderDrawColor(display->renderer, 0, 0, 0, 255);
     SDL_RenderClear(display->renderer);
 
@@ -57,4 +57,4 @@ void display_update(Display *display, Chip8 *chip8) {
     SDL_RenderPresent(display->renderer);
 }
 
-void display_destroy(Display *display) { SDL_Quit(); }
+void display_destroy(Display* display) { SDL_Quit(); }
