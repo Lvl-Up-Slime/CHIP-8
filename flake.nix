@@ -1,14 +1,18 @@
 {
-  description = "CHIP-8 Bin";
+  description = "CHIP-8 dev environment";
+
+  inputs.nixpkgs.url = "github:NixOS/nixpkgs";
 
   outputs = { self, nixpkgs }: {
-    devShells.default = nixpkgs.lib.mkShell {
+    devShells.x86_64-linux.default = let
+      pkgs = nixpkgs.legacyPackages.x86_64-linux;
+    in
+    pkgs.mkShell {
       buildInputs = [
-        nixpkgs.SDL3
-        nixpkgs.pkg-config
-        nixpkgs.gcc
-        nixpkgs.clang
-        nixpkgs.gdb
+        pkgs.gcc
+        pkgs.pkg-config
+        pkgs.sdl3
+        pkgs.fish
       ];
     };
   };
