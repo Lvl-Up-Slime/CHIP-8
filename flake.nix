@@ -9,6 +9,7 @@
     in
     pkgs.mkShell {
       buildInputs = [
+        pkgs.bear
         pkgs.gcc
         pkgs.pkg-config
         pkgs.sdl3
@@ -17,4 +18,3 @@
     };
   };
 }
-
