@@ -5,12 +5,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "SDL3/SDL_init.h"
+
 void display_init(Display* display) {
     display->window_scale = 10;
 
-    if (SDL_Init(SDL_INIT_VIDEO) != 0) {
-        printf("SDL_Init Error: %s\n", SDL_GetError());
-        exit(-1);
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) != 0) {
+        fprintf(stderr, "SDL_Init Error: %s\n", SDL_GetError());
+        exit(EXIT_FAILURE);
     }
 
     display->window = SDL_CreateWindow("chip8", 64 * display->window_scale,
@@ -57,4 +59,4 @@ void display_update(Display* display, Chip8* chip8) {
     SDL_RenderPresent(display->renderer);
 }
 
-void display_destroy(Display* display) { SDL_Quit(); }
+// void display_destroy(Display* display) { SDL_Quit(); }

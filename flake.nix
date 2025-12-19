@@ -8,12 +8,14 @@
       pkgs = nixpkgs.legacyPackages.x86_64-linux;
     in
     pkgs.mkShell {
-      buildInputs = [
-        pkgs.bear
-        pkgs.gcc
-        pkgs.pkg-config
-        pkgs.sdl3
-        pkgs.fish
+      buildInputs = with pkgs; [
+        bear
+        mesa
+        wayland
+        gcc
+        pkg-config
+        sdl3
+        fish
       ];
     };
   };
