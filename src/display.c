@@ -10,7 +10,7 @@
 void display_init(Display* display) {
     display->window_scale = 10;
 
-    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) != 0) {
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) != true) {
         fprintf(stderr, "SDL_Init Error: %s\n", SDL_GetError());
         exit(EXIT_FAILURE);
     }

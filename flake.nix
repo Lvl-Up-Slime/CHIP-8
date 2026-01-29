@@ -17,6 +17,10 @@
         sdl3
         fish
       ];
+      shellHook = ''
+        exec fish
+      '';
+
     };
   };
 }

@@ -3,7 +3,7 @@ ROOT_DIR    = $(HOME)/Projects/CHIP-8
 SRC_DIR     = $(ROOT_DIR)/src
 INCLUDE_DIR = $(ROOT_DIR)/include
 BUILD_DIR   = $(ROOT_DIR)/build
-ROM     	= $(ROOT_DIR)/assets/chip8-test-suite/bin/1-chip8-logo.ch8
+ROM         = $(ROOT_DIR)/assets/chip8-test-suite/bin/3-corax+.ch8
 
 # Compiler and flags
 CC      = clang
