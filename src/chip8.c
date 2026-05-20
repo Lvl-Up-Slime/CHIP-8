@@ -1,4 +1,5 @@
 #include "chip8.h"
+
 #include <bits/stdint-intn.h>
 #include <bits/stdint-uintn.h>
 #include <stdbool.h>
@@ -6,7 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "sys/types.h"
+
 
 void chip8_init(Chip8* chip8) {
     chip8->pc = 0x200;
@@ -26,9 +27,9 @@ void chip8_init(Chip8* chip8) {
 }
 
 void chip8_emulate_cycles(Chip8* chip8) {
-    chip8->opcode =
-        chip8->memory[chip8->pc] << 8 | chip8->memory[chip8->pc + 1];
+    chip8->opcode = chip8->memory[chip8->pc] << 8 | chip8->memory[chip8->pc + 1];
     chip8->pc += 2;
+
     int x = 0;
     int y = 0;
 
@@ -37,6 +38,11 @@ void chip8_emulate_cycles(Chip8* chip8) {
     uint16_t NNN = (chip8->opcode & 0x0FFF);
     uint8_t X = (chip8->opcode & 0x0F00) >> 8;
     uint8_t Y = (chip8->opcode & 0x00F0) >> 4;
+
+    uint8_t vX = 0;
+    uint8_t vY = 0;
+
+    uint8_t key_pressed = 0;
 
     switch (chip8->opcode & 0xF000) {
         case 0x0000:
@@ -62,21 +68,25 @@ void chip8_emulate_cycles(Chip8* chip8) {
             chip8->stack[chip8->sp] = chip8->pc;
             chip8->sp++;
             chip8->pc = NNN;
+            break;
         case 0x3000:
             // 3XNN: If register X equals NN then skip next instruction
             if (chip8->V[X] == NN) {
                 chip8->pc += 2;
             }
+            break;
         case 0x4000:
             // 4XNN: If register X does not equals NN then skip next instruction
             if (chip8->V[X] != NN) {
                 chip8->pc += 2;
             }
+            break;
         case 0x5000:
             // 5XY0: If register X and Y are equals then skip next instruction
             if (chip8->V[X] == chip8->V[Y]) {
                 chip8->pc += 2;
             }
+            break;
         case 0x6000:
             // 6XNN: Set register X to NN
             chip8->V[X] = NN;
@@ -107,22 +117,22 @@ void chip8_emulate_cycles(Chip8* chip8) {
                     // return register X + Y
                     chip8->V[X] += chip8->V[Y];
                     break;
-                case 0x5: {
+                case 0x5:
                     // mask the value for negative
-                    uint8_t Vx = chip8->V[X];
-                    uint8_t Vy = chip8->V[Y];
+                    vX = chip8->V[X];
+                    vY = chip8->V[Y];
                     // if there is a borrow set to 0 else set to 1
-                    chip8->V[N] = (Vx >= Vy);
+                    chip8->V[N] = (vX >= vY);
                     // return register X - Y
-                    chip8->V[X] = Vx - Vy;
+                    chip8->V[X] = vX - vY;
                     break;
-                }
+
                 case 0x6:
                     // store the last bit of register X
-                    uint8_t last_bit = (chip8->V[X] & 1);
+                    uint8_t last_bit = (chip8->V[X] & 0x1);
                     // check for the VY shifting quirk set in chip8 typedef
-                    // if shift quirk is true shift VY >> 1 and store to VX else
-                    // shift VX >> 1
+                    // if shift quirk is true: shift VX >> 1 and store to VX 
+                    // else: shift VY >> 1
                     if (chip8->vy_shift_quirk) {
                         chip8->V[X] = (chip8->V[X] >> 1);
                     } else {
@@ -130,16 +140,17 @@ void chip8_emulate_cycles(Chip8* chip8) {
                     }
                     chip8->V[N] = last_bit;
                     break;
-                case 0x7: {
+
+                case 0x7:
                     // mask the value for negative
-                    uint8_t Vx = chip8->V[X];
-                    uint8_t Vy = chip8->V[Y];
+                    vX = chip8->V[X];
+                    vY = chip8->V[Y];
                     // if there is a borrow set to 0 else set to 1
-                    chip8->V[N] = (Vx >= Vy);
+                    chip8->V[N] = (vX >= vY);
                     // return register Y - X
-                    chip8->V[X] = Vy - Vx;
+                    chip8->V[X] = vY - vX;
                     break;
-                }
+
                 case 0xE:
                     // Set VN to the most significant bit of VX
                     uint8_t first_bit = (chip8->V[X] & 0x80) >> 7;
@@ -151,6 +162,7 @@ void chip8_emulate_cycles(Chip8* chip8) {
                     }
                     chip8->V[N] = first_bit;
                     break;
+
                 default:
                     printf("default");
             }
@@ -160,6 +172,7 @@ void chip8_emulate_cycles(Chip8* chip8) {
             if (chip8->V[X] != chip8->V[Y]) {
                 chip8->pc += 2;
             }
+            break;
         case 0xA000:
             // ANNN: Set the index register to the address NNN
             chip8->index_reg = NNN;
@@ -167,9 +180,11 @@ void chip8_emulate_cycles(Chip8* chip8) {
         case 0xB000:
             // BNNN: Jump to adress NNN + register 0
             chip8->pc = NNN + chip8->V[0];
+            break;
         case 0xC000:
             // CXNN: Set register X to random number[0-255] AND NN
             chip8->V[X] = (rand() % 256) & NN;
+            break;
         case 0xD000:
             // DXYN: Draw a sprite at coordinate VX, VY using N bytes of
             // sprite data starting at the address stored in the index
@@ -226,7 +241,7 @@ void chip8_emulate_cycles(Chip8* chip8) {
                     break;
                     // wait for key press and store value in register X
                 case 0x0A:
-                    bool key_pressed = false;
+                    key_pressed = false;
                     for (int i = 0; i < 16; i++) {
                         if (chip8->keypad[i] == true) chip8->V[X] = i;
                         key_pressed = true;
@@ -245,28 +260,30 @@ void chip8_emulate_cycles(Chip8* chip8) {
                     break;
                     // add value of register X to Index Register
                 case 0x1E:
-                    chip8->index_reg = chip8->index_reg + ((u_int16_t)chip8->V[X]);
+                    chip8->index_reg = chip8->index_reg + chip8->V[X];
                     break;
                 case 0x29:
                     chip8->index_reg = chip8->V[X] * 5;
                     break;
                 case 0x33:
-                    chip8->memory[chip8->index_reg] = chip8->V[X] / 100;
-                    chip8->memory[chip8->index_reg + 1] = (chip8->V[X] / 10) % 10;
-                    chip8->memory[chip8->index_reg + 2] = chip8->V[X] % 10;
+                    chip8->memory[chip8->index_reg] = (chip8->V[X] / 100);
+                    chip8->memory[chip8->index_reg + 1] = ((chip8->V[X] / 10) % 10);
+                    chip8->memory[chip8->index_reg + 2] = (chip8->V[X] % 10);
                     break;
                 case 0x55:
-                    for (int i = 0; i < chip8->V[X + 1]; i++) {
+                    for (int i = 0; i <= X; i++) {
                         chip8->memory[chip8->index_reg + i] = chip8->V[i];
                     }
-                    chip8->index_reg = chip8->index_reg + ((uint16_t)chip8->V[X] + 1);
+                    chip8->index_reg = chip8->index_reg + ((uint16_t)chip8->V[X]);
                     break;
                 case 0x65:
-                    for (int i = 0; i < chip8->V[X + 1]; i++) {
+                    for (int i = 0; i <= X; i++) {
                         chip8->V[i] = chip8->memory[chip8->index_reg + i];
                     }
                     chip8->index_reg = chip8->index_reg + ((uint16_t)chip8->V[X] + 1);
+                    break;
             }
+            break;
         default:
             printf("error: unknown opcode 0x%04x\n", chip8->opcode & 0xF000);
             break;
@@ -296,4 +313,4 @@ void chip8_load_rom(Chip8* chip8, const char* filename) {
     printf("rom loaded successfully...\n");
 }
 
-void chip8_opcode_debug(uint8_t* opcode) { printf("place holder"); }
+// void chip8_opcode_debug(uint8_t* opcode) { printf("place holder"); }

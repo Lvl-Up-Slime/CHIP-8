@@ -16,11 +16,29 @@ Timer timer;
 
 int main(int argc, char* argv[]) {
     // input validation
-    if (argc < 2) {
-        fprintf(stderr, "Usage: %s <ROM file>\n", argv[0]);
+    if (argc < 2 || argc > 3) {
+        fprintf(stderr, "Usage: %s <Shift Flag> <ROM file>\n", argv[0]);
         return 1;
-    }
-    const char* filename = argv[1];
+    } 
+
+    int index_of_file = 0;
+    if (argc == 2) {
+        index_of_file = 1;
+    }else if (argc == 3) {
+        index_of_file = 2;
+    };
+
+    //vy_shift_quirk
+    bool vy_shift_quirk = false;
+    for (int i = 0; i < argc; i++) {
+      if (strcmp(argv[i], "--shift-quirk=modern")) {
+        vy_shift_quirk = true; 
+      } else if (strcmp(argv[i], "--shift-quirk=original")) {
+        vy_shift_quirk = false; 
+      } 
+    };
+    
+    const char* filename = argv[index_of_file]; 
 
     // init systems
     chip8_init(&chip8);
@@ -28,9 +46,9 @@ int main(int argc, char* argv[]) {
     input_init(&chip8);
     timer_init(&timer, &chip8);
 
-    // need to implement shift quirk validation: vy_shift_quirk
-
     chip8_load_rom(&chip8, filename);  // load rom
+    
+    chip8.vy_shift_quirk = vy_shift_quirk;
 
     // main emulator loop
     while (running) {

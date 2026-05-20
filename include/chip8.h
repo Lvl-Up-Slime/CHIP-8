@@ -11,7 +11,7 @@
 typedef struct {
     uint8_t memory[4096];  // 4k memory: program starts at [0x200]
     uint8_t V[16];         // 16 registers: V0 - VF
-    uint16_t index_reg;            // index registers
+    uint16_t index_reg;    // index registers
     uint16_t pc;           // Program counter
 
     uint16_t stack[16];   // Stack (for function calls)
