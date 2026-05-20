@@ -3,9 +3,8 @@ ROOT_DIR    = $(HOME)/Projects/CHIP-8
 SRC_DIR     = $(ROOT_DIR)/src
 INCLUDE_DIR = $(ROOT_DIR)/include
 BUILD_DIR   = $(ROOT_DIR)/build
-ROM         = $(ROOT_DIR)/assets/chip8-test-suite/bin/8-scrolling.ch8
+ROM         = $(ROOT_DIR)/assets/chip8-test-suite/bin/4-flags.ch8
 SHIFT_QUIRK = --shift-quirk=modern
-
 
 # Compiler and flags
 CC      = clang
@@ -36,7 +35,7 @@ run: $(TARGET)
 
 run_shift: $(TARGET) 
 	./$(TARGET) $(SHIFT_QUIRK) $(ROM) 
-# Clean
+
 clean:
 	@echo "Cleaning up..."
 	rm -rf $(BUILD_DIR) $(TARGET) compile_commands.json

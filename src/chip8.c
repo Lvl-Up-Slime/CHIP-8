@@ -8,7 +8,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-
 void chip8_init(Chip8* chip8) {
     chip8->pc = 0x200;
     chip8->index_reg = 0;
@@ -27,7 +26,8 @@ void chip8_init(Chip8* chip8) {
 }
 
 void chip8_emulate_cycles(Chip8* chip8) {
-    chip8->opcode = chip8->memory[chip8->pc] << 8 | chip8->memory[chip8->pc + 1];
+    chip8->opcode =
+        chip8->memory[chip8->pc] << 8 | chip8->memory[chip8->pc + 1];
     chip8->pc += 2;
 
     int x = 0;
@@ -38,9 +38,6 @@ void chip8_emulate_cycles(Chip8* chip8) {
     uint16_t NNN = (chip8->opcode & 0x0FFF);
     uint8_t X = (chip8->opcode & 0x0F00) >> 8;
     uint8_t Y = (chip8->opcode & 0x00F0) >> 4;
-
-    uint8_t vX = 0;
-    uint8_t vY = 0;
 
     uint8_t key_pressed = 0;
 
@@ -117,21 +114,21 @@ void chip8_emulate_cycles(Chip8* chip8) {
                     // return register X + Y
                     chip8->V[X] += chip8->V[Y];
                     break;
-                case 0x5:
+                case 0x5: {
                     // mask the value for negative
-                    vX = chip8->V[X];
-                    vY = chip8->V[Y];
+                    uint8_t vX = chip8->V[X];
+                    uint8_t vY = chip8->V[Y];
                     // if there is a borrow set to 0 else set to 1
                     chip8->V[N] = (vX >= vY);
                     // return register X - Y
                     chip8->V[X] = vX - vY;
                     break;
-
-                case 0x6:
+                }
+                case 0x6: {
                     // store the last bit of register X
                     uint8_t last_bit = (chip8->V[X] & 0x1);
                     // check for the VY shifting quirk set in chip8 typedef
-                    // if shift quirk is true: shift VX >> 1 and store to VX 
+                    // if shift quirk is true: shift VX >> 1 and store to VX
                     // else: shift VY >> 1
                     if (chip8->vy_shift_quirk) {
                         chip8->V[X] = (chip8->V[X] >> 1);
@@ -140,21 +137,23 @@ void chip8_emulate_cycles(Chip8* chip8) {
                     }
                     chip8->V[N] = last_bit;
                     break;
+                }
 
-                case 0x7:
+                case 0x7: {
                     // mask the value for negative
-                    vX = chip8->V[X];
-                    vY = chip8->V[Y];
+                    uint8_t vX = chip8->V[X];
+                    uint8_t vY = chip8->V[Y];
                     // if there is a borrow set to 0 else set to 1
                     chip8->V[N] = (vX >= vY);
                     // return register Y - X
                     chip8->V[X] = vY - vX;
                     break;
+                }
 
-                case 0xE:
+                case 0xE: {
                     // Set VN to the most significant bit of VX
                     uint8_t first_bit = (chip8->V[X] & 0x80) >> 7;
-                    // shift value of VX
+                    // same check as OPCODE 0x6 for shifting quirk
                     if (chip8->vy_shift_quirk) {
                         chip8->V[X] = (chip8->V[X] << 1);
                     } else {
@@ -162,6 +161,7 @@ void chip8_emulate_cycles(Chip8* chip8) {
                     }
                     chip8->V[N] = first_bit;
                     break;
+                }
 
                 default:
                     printf("default");
@@ -267,20 +267,23 @@ void chip8_emulate_cycles(Chip8* chip8) {
                     break;
                 case 0x33:
                     chip8->memory[chip8->index_reg] = (chip8->V[X] / 100);
-                    chip8->memory[chip8->index_reg + 1] = ((chip8->V[X] / 10) % 10);
+                    chip8->memory[chip8->index_reg + 1] =
+                        ((chip8->V[X] / 10) % 10);
                     chip8->memory[chip8->index_reg + 2] = (chip8->V[X] % 10);
                     break;
                 case 0x55:
                     for (int i = 0; i <= X; i++) {
                         chip8->memory[chip8->index_reg + i] = chip8->V[i];
                     }
-                    chip8->index_reg = chip8->index_reg + ((uint16_t)chip8->V[X]);
+                    chip8->index_reg =
+                        chip8->index_reg + ((uint16_t)chip8->V[X]);
                     break;
                 case 0x65:
                     for (int i = 0; i <= X; i++) {
                         chip8->V[i] = chip8->memory[chip8->index_reg + i];
                     }
-                    chip8->index_reg = chip8->index_reg + ((uint16_t)chip8->V[X] + 1);
+                    chip8->index_reg =
+                        chip8->index_reg + ((uint16_t)chip8->V[X] + 1);
                     break;
             }
             break;
