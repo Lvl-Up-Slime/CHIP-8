@@ -12,6 +12,7 @@
 volatile bool running = true;
 Chip8 chip8;
 Display display;
+Input input;
 Timer timer;
 
 int main(int argc, char* argv[]) {
@@ -24,7 +25,7 @@ int main(int argc, char* argv[]) {
     int index_of_file = 0;
     if (argc == 2) {
         index_of_file = 1;
-    }else if (argc == 3) {
+    } else if (argc == 3) {
         index_of_file = 2;
     };
 
@@ -43,8 +44,8 @@ int main(int argc, char* argv[]) {
     // init systems
     chip8_init(&chip8);
     display_init(&display);
-    input_init(&chip8);
-    timer_init(&timer, &chip8);
+    input_init(&input);
+    timer_init(&timer);
 
     chip8_load_rom(&chip8, filename);  // load rom
     
@@ -57,16 +58,16 @@ int main(int argc, char* argv[]) {
             if (event.type == SDL_EVENT_QUIT) {
                 SDL_Quit();
             }
-            input_update(event, &chip8);
+            input_update(event, &input);
         }
 
-        chip8_emulate_cycles(&chip8);  // execute one opcode
+        chip8_emulate_cycles(&chip8, &display, &input, &timer);  // execute one opcode
 
         timer_delay(&timer);  // delay/sound timer
 
-        if (chip8.draw_flag) {  // draws to SDL window
-            display_update(&display, &chip8);
-            chip8.draw_flag = false;
+        if (display.draw_flag) {  // draws to SDL window
+            display_update(&display);
+            display.draw_flag = false;
         }
         SDL_Delay(16);  //-60 fps
     }

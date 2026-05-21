@@ -1,16 +1,16 @@
 #include <SDL3/SDL.h>
-#include <stdint.h>
-#include "chip8.h"
+#include "input.h"
 
-void input_init(Chip8 * chip8) {
+void input_init(Input* input) {
+    memset(input->keypad, 0, sizeof(input->keypad));
+
    for (int i = 0; i < 16; i++) {
-      chip8->keypad[i] = 0;
+      input->keypad[i] = 0;
    }
 }
 
-void input_update(SDL_Event event, Chip8 * chip8) {
+void input_update(SDL_Event event, Input* input) {
     int value = 0;
-    //checks if key is being pressed
     if (event.type == SDL_EVENT_KEY_DOWN || event.type == SDL_EVENT_KEY_UP) {
          if (SDL_EVENT_KEY_DOWN == 1) {
              value = 1;
@@ -22,37 +22,37 @@ void input_update(SDL_Event event, Chip8 * chip8) {
 
     switch (event.type) {
       case SDLK_1:
-          chip8->keypad[0x1] = value;break;
+          input->keypad[K_1] = value; break;
       case SDLK_2:
-          chip8->keypad[0x2] = value; break;
+          input->keypad[K_2] = value; break;
       case SDLK_3:
-          chip8->keypad[0x3] = value; break;
+          input->keypad[K_3] = value; break;
       case SDLK_4:
-          chip8->keypad[0xC] = value; break;
+          input->keypad[K_C] = value; break;
       case SDLK_Q:
-          chip8->keypad[0x4] = value; break;
+          input->keypad[K_4] = value; break;
       case SDLK_W:
-          chip8->keypad[0x5] = value; break;
+          input->keypad[K_5] = value; break;
       case SDLK_E:
-          chip8->keypad[0x6] = value; break;
+          input->keypad[K_6] = value; break;
       case SDLK_R:
-          chip8->keypad[0xD] = value; break;
+          input->keypad[K_D] = value; break;
       case SDLK_A:
-          chip8->keypad[0x7] = value; break;
+          input->keypad[K_7] = value; break;
       case SDLK_S:
-          chip8->keypad[0x8] = value; break;
+          input->keypad[K_8] = value; break;
       case SDLK_D:
-          chip8->keypad[0x9] = value; break;
+          input->keypad[K_9] = value; break;
       case SDLK_F:
-          chip8->keypad[0xE] = value; break;
+          input->keypad[K_E] = value; break;
       case SDLK_Z:
-          chip8->keypad[0xA] = value; break;
+          input->keypad[K_A] = value; break;
       case SDLK_X:
-          chip8->keypad[0x0] = value; break;
+          input->keypad[K_0] = value; break;
       case SDLK_C:
-          chip8->keypad[0xB] = value; break;
+          input->keypad[K_B] = value; break;
       case SDLK_V:
-          chip8->keypad[0xF] = value; break;
+          input->keypad[K_F] = value; break;
       default: break;
     }
 }

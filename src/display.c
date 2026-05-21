@@ -1,13 +1,14 @@
 #include "display.h"
-
 #include <SDL3/SDL.h>
-#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 
 #include "SDL3/SDL_init.h"
 
 void display_init(Display* display) {
+    memset(display->video, 0, sizeof(display->video));
+    display->draw_flag = false;
+
     display->window_scale = 10;
 
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) != true) {
@@ -33,7 +34,7 @@ void display_init(Display* display) {
     SDL_RenderPresent(display->renderer);
 }
 
-void display_update(Display* display, Chip8* chip8) {
+void display_update(Display* display) {
     SDL_SetRenderDrawColor(display->renderer, 0, 0, 0, 255);
     SDL_RenderClear(display->renderer);
 
@@ -42,7 +43,7 @@ void display_update(Display* display, Chip8* chip8) {
         for (int col = 0; col < SCREEN_WIDTH; col++) {
             int index = row * 64 + col;
             // if pixel is white
-            if (chip8->video[index] == 1) {
+            if (display->video[index] == 1) {
                 SDL_SetRenderDrawColor(display->renderer, 255, 255, 255, 255);
                 // else pixel is black
             } else {
@@ -55,7 +56,6 @@ void display_update(Display* display, Chip8* chip8) {
             SDL_RenderFillRect(display->renderer, &pixel_rect);
         }
     }
-    // renders to the screen
     SDL_RenderPresent(display->renderer);
 }
 
