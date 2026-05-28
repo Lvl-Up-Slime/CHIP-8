@@ -14,7 +14,7 @@ enum keypad {
 };
 
 void input_init(Input* input);
-
+uint8_t input_event_check (Input* input, uint8_t key);
 void input_update(SDL_Event event, Input* input);
 
 #endif //INPUT_H

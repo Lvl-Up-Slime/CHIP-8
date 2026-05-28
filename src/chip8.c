@@ -236,18 +236,20 @@ void chip8_emulate_cycles(Chip8* chip8, Display* display, Input* input, Timer* t
             switch (NN) {
                 // EXA1: skip the next instruction if the key in
                 // register X is not pressed
-                case 0x9E: 
-                    if (input->keypad[chip8->V[X]] != 0) {
+                case 0x9E: {
+                    if (input_event_check(input, chip8->V[X]) != 0) {
                         chip8->pc += 2;
                     }
                     break;
+                }
                 // EXA1: skip the next instruction if the key in
                 // register X is not pressed
-                case 0xA1: 
-                    if (input->keypad[chip8->V[X]] == 0) {
+                case 0xA1: {
+                    if (input_event_check(input, chip8->V[X]) == 0) {
                         chip8->pc += 2;
                     }
                     break;
+                }
             }
             break;
         }
