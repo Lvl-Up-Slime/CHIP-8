@@ -47,29 +47,30 @@ int main(int argc, char* argv[]) {
     input_init(&input);
     timer_init(&timer);
 
-    chip8_load_rom(&chip8, filename);  // load rom
+    chip8_load_rom(&chip8, filename); 
     
     chip8.vy_shift_quirk = vy_shift_quirk;
 
-    // main emulator loop
     while (running) {
-        SDL_Event event;  // keyboard events
+        timer.curr_timer = SDL_GetTicks();
+
+        SDL_Event event;  
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_EVENT_QUIT) {
                 SDL_Quit();
+                running = 0;
             }
             input_update(event, &input);
         }
 
-        chip8_emulate_cycles(&chip8, &display, &input, &timer);  // execute one opcode
+        chip8_emulate_cycles(&chip8, &display, &input, &timer);  
 
-        timer_delay(&timer);  // delay/sound timer
-
-        if (display.draw_flag) {  // draws to SDL window
+        if (display.draw_flag) { 
             display_update(&display);
             display.draw_flag = false;
         }
-        SDL_Delay(16);  //-60 fps
+
+        timer_delay(&timer);  
     }
     return 0;
 }
