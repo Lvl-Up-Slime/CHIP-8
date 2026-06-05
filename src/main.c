@@ -8,7 +8,6 @@
 #include "input.h"
 #include "timer.h"
 
-// declare struct and variables
 volatile bool running = true;
 Chip8 chip8;
 Display display;
@@ -52,9 +51,13 @@ int main(int argc, char* argv[]) {
     chip8.vy_shift_quirk = vy_shift_quirk;
 
     while (running) {
-        timer.curr_timer = SDL_GetTicks();
-
         SDL_Event event;  
+        timer.frame_start = SDL_GetTicks();
+       
+        for (int i = 0; i < INSTRUCTION_PER_FRAME; i++){
+            chip8_emulate_cycles(&chip8, &display, &input, &timer);  
+        }
+
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_EVENT_QUIT) {
                 SDL_Quit();
@@ -63,14 +66,15 @@ int main(int argc, char* argv[]) {
             input_update(event, &input);
         }
 
-        chip8_emulate_cycles(&chip8, &display, &input, &timer);  
-
         if (display.draw_flag) { 
             display_update(&display);
             display.draw_flag = false;
         }
 
-        timer_delay(&timer);  
+        chip8_delay(&timer);
+        
+        timer.frame_end = SDL_GetTicks();
+        frame_delay(&timer);  
     }
     return 0;
 }

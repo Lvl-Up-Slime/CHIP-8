@@ -264,7 +264,9 @@ void chip8_emulate_cycles(Chip8* chip8, Display* display, Input* input, Timer* t
                 case 0x0A: {
                     uint8_t key_pressed = false;
                     for (int i = 0; i < 16; i++) {
-                        if (input->keypad[i] == true) chip8->V[X] = i;
+                        if (input->keypad[i] == true) {
+                            chip8->V[X] = i;
+                        }
                         key_pressed = true;
                     }
                     if (!key_pressed) {

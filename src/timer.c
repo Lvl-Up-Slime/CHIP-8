@@ -2,6 +2,8 @@
 #include <SDL3/SDL.h>
 
 void timer_init(Timer* timer) {
+    timer->frame_start = 0;
+    timer->frame_end = 0;
     timer->delay_timer = 0;
     timer->sound_timer = 0;
 
@@ -9,11 +11,23 @@ void timer_init(Timer* timer) {
     timer->delay_timer = timer->delay_timer;
     timer->sound_timer = timer->sound_timer;
 }
-void timer_delay(Timer* timer) {
-    timer->curr_timer = SDL_GetTicks();
-    if (timer->prev_timer - timer->curr_timer > 16) {
-        if (timer->delay_timer > 0){timer->delay_timer--;}
-        if (timer->sound_timer > 0){timer->sound_timer--;}
-    }
-    timer->prev_timer = timer->curr_timer;
+
+void frame_delay (Timer* timer) {
+   uint32_t frame_time = timer->frame_end - timer->frame_start; 
+    if (frame_time < FRAME_DURATION) {
+        SDL_Delay(FRAME_DURATION - frame_time);
+    };
 }
+
+void chip8_delay (Timer* timer) {
+    if (timer->delay_timer > 0) {
+        timer->delay_timer--;
+    }
+
+    if (timer->sound_timer > 0) { 
+        // play sound
+        timer->sound_timer--;
+    }
+}
+
+
