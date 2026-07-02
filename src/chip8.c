@@ -13,12 +13,31 @@
 
 void chip8_init(Chip8* chip8) {
     chip8->pc = 0x200;
-    chip8->index_reg = 0;
+    chip8->I = 0;
     chip8->sp = 0;
     chip8->opcode = 0;
     chip8->vy_shift_quirk = 0;
+    uint8_t font[80] = {
+        0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
+        0x20, 0x60, 0x20, 0x20, 0x70, // 1
+        0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
+        0xF0, 0x10, 0xF0, 0x10, 0xF0, // 3
+        0x90, 0x90, 0xF0, 0x10, 0x10, // 4
+        0xF0, 0x80, 0xF0, 0x10, 0xF0, // 5
+        0xF0, 0x80, 0xF0, 0x90, 0xF0, // 6
+        0xF0, 0x10, 0x20, 0x40, 0x40, // 7
+        0xF0, 0x90, 0xF0, 0x90, 0xF0, // 8
+        0xF0, 0x90, 0xF0, 0x10, 0xF0, // 9
+        0xF0, 0x90, 0xF0, 0x90, 0x90, // A
+        0xE0, 0x90, 0xE0, 0x90, 0xE0, // B
+        0xF0, 0x80, 0x80, 0x80, 0xF0, // C
+        0xE0, 0x90, 0x90, 0x90, 0xE0, // D
+        0xF0, 0x80, 0xF0, 0x80, 0xF0, // E
+        0xF0, 0x80, 0xF0, 0x80, 0x80  // F
+    };
 
     memset(chip8->memory, 0, sizeof(chip8->memory));
+    memcpy(&chip8->memory[0x000],font, sizeof(font));
     memset(chip8->V, 0, sizeof(chip8->V));
     memset(chip8->stack, 0, sizeof(chip8->stack));
 }
@@ -177,7 +196,7 @@ void chip8_emulate_cycles(Chip8* chip8, Display* display, Input* input, Timer* t
 
         case 0xA000: {
             // ANNN: Set the index register to the address NNN
-            chip8->index_reg = NNN;
+            chip8->I = NNN;
             break;
         }
 
@@ -202,7 +221,7 @@ void chip8_emulate_cycles(Chip8* chip8, Display* display, Input* input, Timer* t
             int y = chip8->V[Y];
             chip8->V[0xF] = 0;
             for (int row = 0; row < N; row++) {
-                int sprite = chip8->memory[chip8->index_reg + row];
+                int sprite = chip8->memory[chip8->I + row];
                 for (int col = 0; col < 8; col++) {
                     // mask the pixel and get its values by shifting
 
@@ -229,7 +248,7 @@ void chip8_emulate_cycles(Chip8* chip8, Display* display, Input* input, Timer* t
         case 0xE000: {
             switch (NN) {
                 // EXA1: skip the next instruction if the key in
-                // register X is not pressed
+                // register X is pressed
                 case 0x9E: {
                     if (input_event_check(input, chip8->V[X]) != 0) {
                         chip8->pc += 2;
@@ -250,7 +269,7 @@ void chip8_emulate_cycles(Chip8* chip8, Display* display, Input* input, Timer* t
 
         case 0xF000: {
             switch (NN) {
-                    // set register to the valiue of delay_timer
+                    // set register to the value of delay_timer
                 case 0x07:  
                     chip8->V[X] = timer->delay_timer;
                     break;
@@ -278,29 +297,29 @@ void chip8_emulate_cycles(Chip8* chip8, Display* display, Input* input, Timer* t
                     break;
                     // add value of register X to Index Register
                 case 0x1E: 
-                    chip8->index_reg = chip8->index_reg + chip8->V[X];
+                    chip8->I = chip8->I + chip8->V[X];
                     break;
                 case 0x29: 
-                    chip8->index_reg = chip8->V[X] * 5;
+                    chip8->I = chip8->V[X] * 5;
                     break;
                 case 0x33: 
-                    chip8->memory[chip8->index_reg] = (chip8->V[X] / 100);
-                    chip8->memory[chip8->index_reg + 1] = ((chip8->V[X] / 10) % 10);
-                    chip8->memory[chip8->index_reg + 2] = (chip8->V[X] % 10);
+                    chip8->memory[chip8->I] = (chip8->V[X] / 100);
+                    chip8->memory[chip8->I + 1] = ((chip8->V[X] / 10) % 10);
+                    chip8->memory[chip8->I + 2] = (chip8->V[X] % 10);
                     break;
                 case 0x55: 
                     for (int i = 0; i <= X; i++) {
-                        chip8->memory[chip8->index_reg + i] = chip8->V[i];
+                        chip8->memory[chip8->I + i] = chip8->V[i];
                     }
-                    chip8->index_reg =
-                        chip8->index_reg + ((uint16_t)chip8->V[X]);
+                    chip8->I =
+                        chip8->I + ((uint16_t)chip8->V[X]);
                     break;
                 case 0x65: 
                     for (int i = 0; i <= X; i++) {
-                        chip8->V[i] = chip8->memory[chip8->index_reg + i];
+                        chip8->V[i] = chip8->memory[chip8->I + i];
                     }
-                    chip8->index_reg =
-                        chip8->index_reg + ((uint16_t)chip8->V[X] + 1);
+                    chip8->I =
+                        chip8->I + ((uint16_t)chip8->V[X] + 1);
                     break;
             }
             break;

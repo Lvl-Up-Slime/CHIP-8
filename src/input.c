@@ -3,10 +3,6 @@
 
 void input_init(Input* input) {
     memset(input->keypad, 0, sizeof(input->keypad));
-
-   for (int i = 0; i < 16; i++) {
-      input->keypad[i] = 0;
-   }
 }
 
 uint8_t input_event_check (Input* input, uint8_t key) {
