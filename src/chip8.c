@@ -95,76 +95,70 @@ void chip8_emulate_cycles(Chip8* chip8, Display* display, Input* input, Timer* t
         }
 
         case 0x7000: {
+            // 7XNN: add NN to register X
             chip8->V[X] += NN;
             break;
         }
 
         case 0x8000: {
+            // 8XY0: Perfoms arithmetic operations 
+            uint8_t vX = chip8->V[X];
+            uint8_t vY = chip8->V[Y];
             switch (N) {
                 case 0x0: 
                     // return register X = Y
-                    chip8->V[X] = chip8->V[Y];
+                    chip8->V[X] = vY;
                     break;
                 case 0x1: 
                     // return register X or Y
-                    chip8->V[X] |= chip8->V[Y];
+                    chip8->V[X] |= vY;
                     break;
                 case 0x2: 
                     // return register X and Y
-                    chip8->V[X] &= chip8->V[Y];
+                    chip8->V[X] &= vY;
                     break;
                 case 0x3: 
                     // return register X xor Y
-                    chip8->V[X] ^= chip8->V[Y];
+                    chip8->V[X] ^= vY;
                     break;
                 case 0x4: 
                     // return register X + Y
-                    chip8->V[X] += chip8->V[Y];
+                    chip8->V[X] += vY;
+                    chip8->V[0xF] = (vX + vY > 0xFF);
                     break;
                 case 0x5: {
-                    // mask the value for negative
-                    uint8_t vX = chip8->V[X];
-                    uint8_t vY = chip8->V[Y];
-                    // if there is a borrow set to 0 else set to 1
-                    chip8->V[N] = (vX >= vY);
                     // return register X - Y
                     chip8->V[X] = vX - vY;
+                    chip8->V[0xF] = (vX >= vY);
                     break;
                 }
                 case 0x6: {
                     // store the last bit of register X
-                    uint8_t last_bit = (chip8->V[X] & 1);
+                    uint8_t last_bit = (vX & 1);
                     // check for the VY shifting quirk set in chip8 typedef
-                    // if shift quirk is true: shift VX >> 1 and store to VX
-                    // else: shift VY >> 1
                     if (chip8->vy_shift_quirk) {
-                        chip8->V[X] = (chip8->V[X] >> 1);
+                        chip8->V[X] = (vX >> 1);
                     } else {
-                        chip8->V[X] = (chip8->V[Y] >> 1);
+                        chip8->V[X] = (vY >> 1);
                     }
-                    chip8->V[15] = last_bit;
+                    chip8->V[0xF] = last_bit;
                     break;
                 }
                 case 0x7: {
-                    // mask the value for negative
-                    uint8_t vX = chip8->V[X];
-                    uint8_t vY = chip8->V[Y];
-                    // if there is a borrow set to 0 else set to 1
-                    chip8->V[N] = (vX >= vY);
-                    // return register Y - X
                     chip8->V[X] = vY - vX;
+                    chip8->V[0xF] = (vY >= vX);
                     break;
                 }
                 case 0xE: {
                     // Set VN to the most significant bit of VX
-                    uint8_t first_bit = (chip8->V[X] & 0x80) >> 7;
+                    uint8_t first_bit = (vX & 0x80) >> 7;
                     // same check as OPCODE 0x6 for shifting quirk
                     if (chip8->vy_shift_quirk) {
-                        chip8->V[X] = (chip8->V[X] << 1);
+                        chip8->V[X] = (vX << 1);
                     } else {
-                        chip8->V[X] = (chip8->V[Y] << 1);
+                        chip8->V[X] = (vY << 1);
                     }
-                    chip8->V[15] = first_bit;
+                    chip8->V[0xF] = first_bit;
                     break;
                 }
                 default: 
@@ -338,5 +332,6 @@ void chip8_load_rom(Chip8* chip8, const char* filename) {
         }
     }
     fclose(rom);
+    
     printf("rom loaded successfully...\n");
 }
