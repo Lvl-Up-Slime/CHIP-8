@@ -1,4 +1,5 @@
 #include "timer.h"
+#include "audio.h"
 #include <SDL3/SDL.h>
 
 void timer_init(Timer* timer) {
@@ -19,14 +20,16 @@ void frame_delay (Timer* timer) {
     };
 }
 
-void chip8_delay (Timer* timer) {
+void chip8_delay (Timer* timer, Audio* audio) {
     if (timer->delay_timer > 0) {
         timer->delay_timer--;
     }
 
     if (timer->sound_timer > 0) { 
-        // play sound
+        audio->is_playing = true;
         timer->sound_timer--;
+    } else {
+        audio->is_playing = false;
     }
 }
 

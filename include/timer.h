@@ -1,6 +1,7 @@
 #ifndef TIMER_H
 #define TIMER_H
 #include <stdint.h>
+#include <audio.h>
 
 #define INSTRUCTION_PER_FRAME 9 
 #define FPS 60
@@ -16,7 +17,7 @@ typedef struct {
     uint32_t curr_timer;
 } Timer;
 
-void timer_init(Timer * timer);
-void frame_delay(Timer * timer);
-void chip8_delay(Timer * timer);
+void timer_init(Timer* timer);
+void frame_delay(Timer* timer);
+void chip8_delay(Timer* timer, Audio* audio);
 #endif //TIMER_H

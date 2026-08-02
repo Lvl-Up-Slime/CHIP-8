@@ -13,7 +13,7 @@ LDFLAGS = $(shell pkg-config --libs sdl3)
 
 # Target and sources
 TARGET  = chip8 
-SOURCES = $(SRC_DIR)/chip8.c $(SRC_DIR)/display.c $(SRC_DIR)/input.c $(SRC_DIR)/main.c $(SRC_DIR)/timer.c
+SOURCES = $(SRC_DIR)/chip8.c $(SRC_DIR)/display.c $(SRC_DIR)/input.c $(SRC_DIR)/main.c $(SRC_DIR)/timer.c $(SRC_DIR)/audio.c
 OBJECTS = $(patsubst $(SRC_DIR)/%.c,$(BUILD_DIR)/%.o,$(SOURCES))
 
 all: $(BUILD_DIR) $(TARGET)

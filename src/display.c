@@ -8,16 +8,9 @@
 void display_init(Display* display) {
     memset(display->video, 0, sizeof(display->video));
     display->draw_flag = false;
-
     display->window_scale = 10;
+    display->window = SDL_CreateWindow("chip8", 64 * display->window_scale, 32 * display->window_scale, 0);
 
-    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) != true) {
-        fprintf(stderr, "SDL_Init Error: %s\n", SDL_GetError());
-        exit(EXIT_FAILURE);
-    }
-
-    display->window = SDL_CreateWindow("chip8", 64 * display->window_scale,
-                                       32 * display->window_scale, 0);
     if (display->window == NULL) {
         printf("SDL_CreateWindow Error: %s\n", SDL_GetError());
         exit(-1);

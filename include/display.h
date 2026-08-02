@@ -15,8 +15,8 @@ typedef struct {
   uint8_t video[SCREEN_WIDTH * SCREEN_HEIGHT];  
 } Display;
 
-void display_init(Display * display);
-void display_update(Display * display);
-void display_destroy(Display * display);
+void display_init(Display* display);
+void display_update(Display* display);
+void display_destroy(Display* display);
 
 #endif //! DISPLAY_H

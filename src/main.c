@@ -1,4 +1,5 @@
 #include <SDL3/SDL.h>
+#include <stdlib.h>
 #include <stdbool.h>
 #include <stdio.h>
 
@@ -7,12 +8,14 @@
 #include "display.h"
 #include "input.h"
 #include "timer.h"
+#include "audio.h"
 
 volatile bool running = true;
 Chip8 chip8;
 Display display;
 Input input;
 Timer timer;
+Audio audio;
 
 int main(int argc, char* argv[]) {
     // input validation
@@ -40,11 +43,18 @@ int main(int argc, char* argv[]) {
     
     const char* filename = argv[index_of_file]; 
 
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS) != true) {
+        fprintf(stderr, "SDL_Init Error: %s\n", SDL_GetError());
+        exit(EXIT_FAILURE);
+    }
+
+
     // init systems
     chip8_init(&chip8);
     display_init(&display);
     input_init(&input);
     timer_init(&timer);
+    audio_init(&audio, SDL_AUDIO_F32LE, 1, 48000);
 
     chip8_load_rom(&chip8, filename); 
     
@@ -71,7 +81,7 @@ int main(int argc, char* argv[]) {
             display.draw_flag = false;
         }
 
-        chip8_delay(&timer);
+        chip8_delay(&timer, &audio);
         
         timer.frame_end = SDL_GetTicks();
         frame_delay(&timer);  
