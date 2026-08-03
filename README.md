@@ -3,8 +3,6 @@
 
 A chip-8 emulator written in C utilizing SDL3 library.
 
-![CHIP-8 Demo](assets/chip8-demo.gif)
-
 ## Features
 
 All core features of a CHIP-8 emulator implemented in SDL3 Library.
