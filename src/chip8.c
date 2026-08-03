@@ -279,8 +279,8 @@ void chip8_emulate_cycles(Chip8* chip8, Display* display, Input* input, Timer* t
                     for (int i = 0; i < 16; i++) {
                         if (input->keypad[i] == true) {
                             chip8->V[X] = i;
+                            key_pressed = true;
                         }
-                        key_pressed = true;
                     }
                     if (!key_pressed) {
                         chip8->pc -= 2;
