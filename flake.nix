@@ -10,8 +10,6 @@
     pkgs.mkShell {
       buildInputs = with pkgs; [
         bear
-        mesa
-        wayland
         gcc
         pkg-config
         sdl3
