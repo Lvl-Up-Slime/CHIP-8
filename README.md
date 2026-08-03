@@ -1,20 +1,20 @@
-# CHIP-8 Emulator 🕹 
+
+# CHIP-8 Emulator 🕹
 
 A chip-8 emulator written in C utilizing SDL3 library.
 
-## Features 
+![CHIP-8 Demo](assets/chip8-demo.gif)
+
+## Features
 
 All core features of a CHIP-8 emulator implemented in SDL3 Library.
 
-- 35 original chip-8 instructions 
+- 35 original chip-8 instructions
 - 16-key keypad mapping to keyboard
 - 64x32 monochrome display rendering
 - Square wave beep sound system
-- Sound and delay timers 
+- Sound and delay timers
 - ROM loading
-
-
-
 
 ## Building
 
